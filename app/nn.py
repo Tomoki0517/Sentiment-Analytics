@@ -1,16 +1,44 @@
-#必要なモジュールをインポート
-from transformers import pipeline
-from transformers import AutoModelForSequenceClassification
-from transformers import BertJapaneseTokenizer
+# #必要なモジュールをインポート
+# from transformers import pipeline
+# from transformers import AutoModelForSequenceClassification
+# from transformers import BertJapaneseTokenizer
+# import joblib
+
+# TARGET_TEXT =input("文字列を入力→")
+
+# model = AutoModelForSequenceClassification.from_pretrained('daigo/bert-base-japanese-sentiment')
+# tokenizer = BertJapaneseTokenizer.from_pretrained('cl-tohoku/bert-base-japanese-whole-word-masking')
+# nlp = pipeline("sentiment-analysis", model=model, tokenizer=tokenizer)
+
+# print(nlp(TARGET_TEXT))
+
+# joblib.dump(nlp(TARGET_TEXT, "nn.pkl", compress=True))
+
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.neural_network import MLPClassifier
 import joblib
+from sklearn.metrics import classification_report, accuracy_score
+# import pickle
 
-TARGET_TEXT =input("文字列を入力→")
+# データ取得
+iris = load_iris()
+x, y = iris.data, iris.target
 
-model = AutoModelForSequenceClassification.from_pretrained('daigo/bert-base-japanese-sentiment')
-tokenizer = BertJapaneseTokenizer.from_pretrained('cl-tohoku/bert-base-japanese-whole-word-masking') 
-nlp = pipeline("sentiment-analysis", model=model, tokenizer=tokenizer) 
+# 訓練データとテストデータに分割
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.5, random_state=0)
 
-print(nlp(TARGET_TEXT))
+# モデルのインスタンスを作成(ニューラルネットワーク)
+model = MLPClassifier(solver="sgd", random_state=0, max_iter=3000)
 
-joblib.dump(nlp(TARGET_TEXT, "nn.pkl", compress=True))
+# 学習
+model.fit(x_train, y_train)
+pred = model.predict(x_test)
+
+# 学習済みモデルの保存
+joblib.dump(model, "nn.pkl", compress=True)
+
+# 予測精度
+print("result: ", model.score(x_test, y_test))
+print(classification_report(y_test, pred))
 
